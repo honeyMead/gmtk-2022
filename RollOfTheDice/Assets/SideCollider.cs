@@ -4,6 +4,7 @@ public class SideCollider : MonoBehaviour
 {
     public int side;
     private GameController gameController;
+    private int touchingColliders = 0;
 
     void Start()
     {
@@ -22,5 +23,16 @@ public class SideCollider : MonoBehaviour
                 gameController.LoadNextLevel();
             }
         }
+        touchingColliders++;
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        touchingColliders--;
+    }
+
+    public bool IsColliding()
+    {
+        return touchingColliders > 0;
     }
 }

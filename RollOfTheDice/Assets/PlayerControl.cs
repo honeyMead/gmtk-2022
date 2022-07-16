@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerControl : MonoBehaviour
 {
@@ -15,8 +18,27 @@ public class PlayerControl : MonoBehaviour
     private float angleSign;
     private float rotationApplied;
 
+    private IEnumerable<SideCollider> sideColliders;
+    private Rigidbody ownRigidbody;
+
+    void Start()
+    {
+        sideColliders = GameObject.FindGameObjectsWithTag("SideCollider")
+            .Select(s => s.GetComponent<SideCollider>());
+        ownRigidbody = GetComponent<Rigidbody>();
+    }
+
     void Update()
     {
+        if (!ownRigidbody.isKinematic)
+        {
+            if (transform.position.y < -5f)
+            {
+                var currentScene = SceneManager.GetActiveScene().buildIndex;
+                SceneManager.LoadScene(currentScene);
+            }
+            return;
+        }
         if (!isMoving)
         {
             SetCurrentKeyIfApplicable(KeyCode.W);
@@ -82,6 +104,16 @@ public class PlayerControl : MonoBehaviour
             currentKey = KeyCode.None;
             isMoving = false;
             RoundPositionAndRotation();
+            CheckIfLaysOnGround();
+        }
+    }
+
+    private void CheckIfLaysOnGround()
+    {
+        var hasAnyCollision = sideColliders.Any(s => s.IsColliding());
+        if (!hasAnyCollision)
+        {
+            ownRigidbody.isKinematic = false;
         }
     }
 
