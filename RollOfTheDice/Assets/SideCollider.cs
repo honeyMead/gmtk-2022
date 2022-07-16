@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class NumberCollider : MonoBehaviour
+public class SideCollider : MonoBehaviour
 {
     public int side;
     private GameController gameController;
