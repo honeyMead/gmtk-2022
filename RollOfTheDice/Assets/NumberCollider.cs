@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class NumberCollider : MonoBehaviour
 {
+    public int side;
     private GameController gameController;
 
     void Start()
@@ -14,9 +15,12 @@ public class NumberCollider : MonoBehaviour
     {
         if (other.CompareTag("Finish"))
         {
-            Debug.Log("Finish");
-            // TODO check if correct side landed on goal. Then load next scene or show winning screen
-            gameController.LoadNextLevel();
+            var finish = other.GetComponent<Finish>();
+
+            if (finish.winValue == side)
+            {
+                gameController.LoadNextLevel();
+            }
         }
     }
 }

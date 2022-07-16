@@ -439,6 +439,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8484fc66eb31e214ab624b807e947cf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  side: 2
 --- !u!1 &656713152
 GameObject:
   m_ObjectHideFlags: 0
@@ -742,6 +743,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8484fc66eb31e214ab624b807e947cf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  side: 6
 --- !u!1 &779894768
 GameObject:
   m_ObjectHideFlags: 0
@@ -817,6 +819,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8484fc66eb31e214ab624b807e947cf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  side: 4
 --- !u!1 &804351645
 GameObject:
   m_ObjectHideFlags: 0
@@ -924,6 +927,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8484fc66eb31e214ab624b807e947cf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  side: 5
 --- !u!1 &841678987
 GameObject:
   m_ObjectHideFlags: 0
@@ -1332,6 +1336,7 @@ GameObject:
   - component: {fileID: 1420925106}
   - component: {fileID: 1420925105}
   - component: {fileID: 1420925104}
+  - component: {fileID: 1420925107}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Finish
@@ -1417,6 +1422,19 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1420925102}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1420925107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1420925102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51c20a3ebe1fdb64c97fe24bc04ec2a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  winValue: 2
 --- !u!1 &1427837891
 GameObject:
   m_ObjectHideFlags: 0
@@ -1552,6 +1570,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8484fc66eb31e214ab624b807e947cf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  side: 1
 --- !u!54 &1747434977
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1643,6 +1662,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8484fc66eb31e214ab624b807e947cf6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  side: 3
 --- !u!1 &1968924335
 GameObject:
   m_ObjectHideFlags: 0
