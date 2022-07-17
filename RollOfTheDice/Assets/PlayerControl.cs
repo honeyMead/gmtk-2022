@@ -1,7 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class PlayerControl : MonoBehaviour
 {
@@ -9,6 +9,8 @@ public class PlayerControl : MonoBehaviour
     private Vector3 relativePointBack = new(0, -0.5f, -0.5f);
     private Vector3 relativePointLeft = new(-0.5f, -0.5f, 0);
     private Vector3 relativePointRight = new(0.5f, -0.5f, 0);
+
+    private Vector3 relativePointLeftUp = new(-0.5f, 0.5f, 0);
 
     private KeyCode currentKey;
     private bool isMoving = false;
@@ -19,21 +21,24 @@ public class PlayerControl : MonoBehaviour
     private float rotationApplied;
 
     private IEnumerable<SideCollider> sideColliders;
-    private Rigidbody ownRigidbody;
+
+    public Rigidbody OwnRigidbody { get; private set; }
     private GameController gameController;
+    public IList<StickyDie> stickyDice = new List<StickyDie>();
+    internal bool isLeftSideBlocked; // HACK to prevent rolling through sticky colliders with other side number
 
     void Start()
     {
         sideColliders = GameObject.FindGameObjectsWithTag("SideCollider")
             .Select(s => s.GetComponent<SideCollider>());
-        ownRigidbody = GetComponent<Rigidbody>();
+        OwnRigidbody = GetComponent<Rigidbody>();
         gameController = GameObject.FindWithTag("GameController")
             .GetComponent<GameController>();
     }
 
     void Update()
     {
-        if (!ownRigidbody.isKinematic)
+        if (!OwnRigidbody.isKinematic)
         {
             if (transform.position.y < -5f)
             {
@@ -54,8 +59,51 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
+    public void SideCollided(Transform sideCollider)
+    {
+        if (!OwnRigidbody.isKinematic)
+        {
+            var isBottomCollider = (sideCollider.position - transform.position).y < -0.1f;
+            if (isBottomCollider)
+            {
+                OwnRigidbody.isKinematic = true;
+                RoundPositionAndRotation();
+            }
+        }
+    }
+
     private void SetCurrentKeyIfApplicable(KeyCode key)
     {
+        StickyDie leftSticky = null;
+        StickyDie rightSticky = null;
+        StickyDie frontSticky = null;
+        StickyDie backSticky = null;
+
+        foreach (var stickyDie in stickyDice)
+        {
+            var direction = stickyDie.transform.position - transform.position;
+            if (direction.x < 0)
+            {
+                leftSticky = stickyDie;
+                break;
+            }
+            if (direction.x > 0)
+            {
+                rightSticky = stickyDie;
+                break;
+            }
+            if (direction.z > 0)
+            {
+                frontSticky = stickyDie;
+                break;
+            }
+            if (direction.z < 0)
+            {
+                backSticky = stickyDie;
+                break;
+            }
+        }
+
         if (Input.GetKey(key))
         {
             currentKey = key;
@@ -77,7 +125,15 @@ public class PlayerControl : MonoBehaviour
                 case KeyCode.A:
                     rotationAxis = Vector3.forward;
                     angleSign = 1f;
-                    relativeRotationPoint = relativePointLeft;
+                    if (!isLeftSideBlocked)
+                    {
+                        relativeRotationPoint = relativePointLeft;
+                        // TODO implement other cases
+                        if (leftSticky != null)
+                        {
+                            relativeRotationPoint = relativePointLeftUp;
+                        }
+                    }
                     break;
                 case KeyCode.D:
                     rotationAxis = Vector3.forward;
@@ -103,19 +159,34 @@ public class PlayerControl : MonoBehaviour
 
         if (rotationApplied >= 1)
         {
-            currentKey = KeyCode.None;
-            isMoving = false;
-            RoundPositionAndRotation();
-            CheckIfLaysOnGround();
+            FinishMovement();
         }
+    }
+
+    private void FinishMovement()
+    {
+        currentKey = KeyCode.None;
+        isMoving = false;
+        RoundPositionAndRotation();
+        CheckIfLaysOnGround();
     }
 
     private void CheckIfLaysOnGround()
     {
-        var hasAnyCollision = sideColliders.Any(s => s.IsColliding());
-        if (!hasAnyCollision)
+        var collidingSides = sideColliders.Where(s => s.IsColliding());
+        var bottomCollider = collidingSides
+            .SingleOrDefault(s => (s.transform.position - transform.position).y < -0.1f);
+
+        var isNotGrounded = bottomCollider == null;
+
+        if (isNotGrounded)
         {
-            ownRigidbody.isKinematic = false;
+            var isSticking = collidingSides.Any(s => s.IsSticking());
+
+            if (!isSticking)
+            {
+                OwnRigidbody.isKinematic = false;
+            }
         }
     }
 

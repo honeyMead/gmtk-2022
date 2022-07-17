@@ -16,7 +16,10 @@ public class GameController : MonoBehaviour
         if (permanentMusic == null)
         {
             permanentMusic = GameObject.FindWithTag("Music");
-            DontDestroyOnLoad(permanentMusic);
+            if (permanentMusic != null)
+            {
+                DontDestroyOnLoad(permanentMusic);
+            }
         }
         else
         {
@@ -29,7 +32,6 @@ public class GameController : MonoBehaviour
         var currentLevel = SceneManager.GetActiveScene().buildIndex;
         var nextLevel = currentLevel + 1;
 
-        // TODO play sound
         Time.timeScale = 0.2f;
 
         if (nextLevel < SceneManager.sceneCountInBuildSettings)

@@ -6,4 +6,5 @@ My game is called: **"Dices de los muertos"**.
 
 ## Attribution
 
-Calavera icon by [Delapouite](https://delapouite.com/) under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/).
+Calavera icon by [Delapouite](https://delapouite.com/) under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/).  
+Music "Morenita" by [TexasMusicForge](https://freesound.org/people/TexasMusicForge/sounds/2687/).  
