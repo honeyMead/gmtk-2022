@@ -6,11 +6,22 @@ using UnityEngine.SceneManagement;
 public class GameController : MonoBehaviour
 {
     private GameObject ui;
+    private static GameObject permanentMusic = null;
 
     void Start()
     {
         ui = GameObject.FindWithTag("UI");
         ui.SetActive(false);
+
+        if (permanentMusic == null)
+        {
+            permanentMusic = GameObject.FindWithTag("Music");
+            DontDestroyOnLoad(permanentMusic);
+        }
+        else
+        {
+            RemoveDoubledMusic();
+        }
     }
 
     public void LoadNextLevel()
@@ -43,10 +54,29 @@ public class GameController : MonoBehaviour
         Time.timeScale = 0;
     }
 
+    public void RestartLevel()
+    {
+        var currentScene = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentScene);
+    }
+
     public void RestartGame()
     {
-        SceneManager.LoadScene(0);
         Time.timeScale = 1;
+        SceneManager.LoadScene(0);
+    }
+
+    private void RemoveDoubledMusic()
+    {
+        var musics = GameObject.FindGameObjectsWithTag("Music");
+
+        foreach (var music in musics)
+        {
+            if (music != permanentMusic)
+            {
+                music.SetActive(false);
+            }
+        }
     }
 
     private IEnumerator Waiter(Action action)

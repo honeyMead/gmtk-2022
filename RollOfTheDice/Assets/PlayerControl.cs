@@ -20,12 +20,15 @@ public class PlayerControl : MonoBehaviour
 
     private IEnumerable<SideCollider> sideColliders;
     private Rigidbody ownRigidbody;
+    private GameController gameController;
 
     void Start()
     {
         sideColliders = GameObject.FindGameObjectsWithTag("SideCollider")
             .Select(s => s.GetComponent<SideCollider>());
         ownRigidbody = GetComponent<Rigidbody>();
+        gameController = GameObject.FindWithTag("GameController")
+            .GetComponent<GameController>();
     }
 
     void Update()
@@ -34,8 +37,7 @@ public class PlayerControl : MonoBehaviour
         {
             if (transform.position.y < -5f)
             {
-                var currentScene = SceneManager.GetActiveScene().buildIndex;
-                SceneManager.LoadScene(currentScene);
+                gameController.RestartLevel();
             }
             return;
         }
