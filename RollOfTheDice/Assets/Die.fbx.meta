@@ -9,6 +9,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Die
     second: {fileID: 2100000, guid: f6ad92560d9b8d74799e86f34e3aed90, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SideInner
+    second: {fileID: 2100000, guid: 89e33e90107ff8044ad467c7d054ed02, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

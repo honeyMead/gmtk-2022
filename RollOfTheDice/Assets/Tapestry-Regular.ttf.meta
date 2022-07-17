@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9a0199f6c65799d4e94e387bff5bc76d
+guid: efa22400f3b62cd4abedf253e93b20c1
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Righteous
+  - Tapestry
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
