@@ -20,6 +20,7 @@ public class SideCollider : MonoBehaviour
 
             if (finish.winValue == side)
             {
+                finish.Win();
                 gameController.LoadNextLevel();
             }
         }
