@@ -40,6 +40,7 @@ public class PlayerControl : MonoBehaviour
 
     public Rigidbody OwnRigidbody { get; private set; }
     private GameController gameController;
+    private DiceLogic diceLogic;
     public IList<StickyDie> stickyDice = new List<StickyDie>();
     internal bool isLeftSideBlocked; // HACK to prevent rolling through sticky colliders with other side number
 
@@ -47,13 +48,11 @@ public class PlayerControl : MonoBehaviour
     {
         sideColliders = GameObject.FindGameObjectsWithTag("SideCollider")
             .Select(s => s.GetComponent<SideCollider>());
-        foreach (var side in sideColliders)
-        {
-
-        }
+        SetSideColliders();
         OwnRigidbody = GetComponent<Rigidbody>();
         gameController = GameObject.FindWithTag("GameController")
             .GetComponent<GameController>();
+        diceLogic = GetComponent<DiceLogic>();
     }
 
     void Update()
@@ -110,7 +109,7 @@ public class PlayerControl : MonoBehaviour
             if (isBottomCollider)
             {
                 OwnRigidbody.isKinematic = true;
-                RoundPositionAndRotation();
+                diceLogic.RoundPositionAndRotation();
             }
         }
     }
@@ -207,8 +206,9 @@ public class PlayerControl : MonoBehaviour
 
     private void FinishMovement()
     {
-        RoundPositionAndRotation();
+        diceLogic.RoundPositionAndRotation();
         CheckIfLaysOnGround();
+        SetSideColliders();
         moveDirection = Direction.None;
         isMoving = false;
     }
@@ -232,23 +232,40 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
-    private void RoundPositionAndRotation()
+    private void SetSideColliders() // TODO use SetDieDotValues from dice logic to first set all dot values and then get the right collider with the number
     {
-        var xRotation = RoundToNextOfNinety(transform.rotation.eulerAngles.x);
-        var yRotation = RoundToNextOfNinety(transform.rotation.eulerAngles.y);
-        var zRotation = RoundToNextOfNinety(transform.rotation.eulerAngles.z);
-        var roundedRotation = Quaternion.Euler(xRotation, yRotation, zRotation);
-
-        var x = Mathf.Round(transform.position.x);
-        var y = Mathf.Round(transform.position.y);
-        var z = Mathf.Round(transform.position.z);
-        var roundedPosition = new Vector3(x, y, z);
-
-        transform.SetPositionAndRotation(roundedPosition, roundedRotation);
-    }
-
-    private float RoundToNextOfNinety(float a)
-    {
-        return Mathf.Round(a / 90) * 90;
+        foreach (var side in sideColliders)
+        {
+            var relativeSidePosition = side.transform.position - this.transform.position;
+            if (relativeSidePosition == sidePointLeft)
+            {
+                leftSide = side;
+            }
+            else if (relativeSidePosition == sidePointRight)
+            {
+                rightSide = side;
+            }
+            else if (relativeSidePosition == sidePointFront)
+            {
+                frontSide = side;
+            }
+            else if (relativeSidePosition == sidePointBack)
+            {
+                backSide = side;
+            }
+            else if (relativeSidePosition == sidePointTop)
+            {
+                topSide = side;
+            }
+            else if (relativeSidePosition == sidePointBottom)
+            {
+                bottomSide = side;
+            }
+            else
+            {
+                Debug.LogWarning($"Could not set side collider. Relative position: " +
+                    $"x: {relativeSidePosition.x}, y: {relativeSidePosition.y}, z: {relativeSidePosition.z}");
+            }
+        }
     }
 }
