@@ -3,6 +3,7 @@ using UnityEngine;
 public class DiceLogic : MonoBehaviour
 {
     public bool isSticky = false;
+    public bool isFinish = false;
 
     public int FrontDotValue { get; private set; }
     public int BackDotValue { get; private set; }

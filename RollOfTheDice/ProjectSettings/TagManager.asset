@@ -8,6 +8,7 @@ TagManager:
   - SideCollider
   - Music
   - StickyDie
+  - Die
   layers:
   - Default
   - TransparentFX

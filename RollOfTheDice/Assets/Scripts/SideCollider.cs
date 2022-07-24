@@ -1,12 +1,14 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SideCollider : MonoBehaviour
 {
-    public int side;
+    public int dotValue;
     private GameController gameController;
     private PlayerControl player;
-    private int touchingColliders = 0;
     private bool isSticking = false;
+
+    public IList<DiceLogic> TouchingDice { get; private set; } = new List<DiceLogic>();
 
     void Start()
     {
@@ -18,25 +20,35 @@ public class SideCollider : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        if (other.CompareTag("Die"))
+        {
+            var die = other.GetComponent<DiceLogic>();
+            TouchingDice.Add(die);
+        }
+
         if (!other.CompareTag("Player"))
         {
             player.SideCollided(transform);
         }
 
-        if (other.CompareTag("Finish"))
+        if (other.CompareTag("Die"))
         {
-            var finish = other.GetComponent<Finish>();
-
-            if (finish.winValue == side)
+            var die = other.GetComponent<DiceLogic>();
+            if (die.isFinish)
             {
-                finish.Win();
-                gameController.LoadNextLevel();
+                var finish = other.GetComponent<Finish>();
+
+                if (finish.winValue == dotValue)
+                {
+                    finish.Win();
+                    gameController.LoadNextLevel();
+                }
             }
         }
         else if (other.CompareTag("StickyDie"))
         {
             var stickyDie = other.gameObject.GetComponent<StickyDie>();
-            if (stickyDie.sideValue == side)
+            if (stickyDie.sideValue == dotValue)
             {
                 player.isLeftSideBlocked = false;
                 player.stickyDice.Add(stickyDie);
@@ -47,14 +59,16 @@ public class SideCollider : MonoBehaviour
                 player.isLeftSideBlocked = true;
             }
         }
-        if (!other.CompareTag("Player"))
-        {
-            touchingColliders++;
-        }
     }
 
     void OnTriggerExit(Collider other)
     {
+        if (other.CompareTag("Die"))
+        {
+            var die = other.GetComponent<DiceLogic>();
+            TouchingDice.Remove(die);
+        }
+
         if (other.CompareTag("StickyDie"))
         {
             player.isLeftSideBlocked = false;
@@ -62,20 +76,15 @@ public class SideCollider : MonoBehaviour
             player.stickyDice.Remove(stickyDie);
             isSticking = false;
         }
-        touchingColliders--;
-        if (touchingColliders < 0)
-        {
-            touchingColliders = 0;
-        }
     }
 
     public bool IsColliding()
     {
-        return touchingColliders > 0;
+        return TouchingDice.Count > 0; // TODO fix (set Tag of sticky dice to "Die")
     }
 
     public bool IsSticking()
     {
-        return isSticking;
+        return isSticking; // TODO fix
     }
 }

@@ -207,13 +207,13 @@ public class PlayerControl : MonoBehaviour
     private void FinishMovement()
     {
         diceLogic.RoundPositionAndRotation();
-        CheckIfLaysOnGround();
+        CheckIfLaysOnGroundOrSticks();
         SetSideColliders();
         moveDirection = Direction.None;
         isMoving = false;
     }
 
-    private void CheckIfLaysOnGround()
+    private void CheckIfLaysOnGroundOrSticks()
     {
         var collidingSides = sideColliders.Where(s => s.IsColliding());
         var bottomCollider = collidingSides
