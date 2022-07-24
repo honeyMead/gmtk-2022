@@ -4,12 +4,23 @@ using UnityEngine;
 
 public class PlayerControl : MonoBehaviour
 {
-    private Vector3 relativePointForward = new(0, -0.5f, 0.5f);
-    private Vector3 relativePointBack = new(0, -0.5f, -0.5f);
-    private Vector3 relativePointLeft = new(-0.5f, -0.5f, 0);
-    private Vector3 relativePointRight = new(0.5f, -0.5f, 0);
+    private const float D = 0.5f;
+    private static readonly Vector3 sidePointLeft = new(-D, 0, 0);
+    private static readonly Vector3 sidePointRight = new(D, 0, 0);
+    private static readonly Vector3 sidePointFront = new(0, 0, D);
+    private static readonly Vector3 sidePointBack = new(0, 0, -D);
+    private static readonly Vector3 sidePointTop = new(0, D, 0);
+    private static readonly Vector3 sidePointBottom = new(0, -D, 0);
 
-    private Vector3 relativePointLeftUp = new(-0.5f, 0.5f, 0);
+    private static readonly Vector3 rotationPointForward = sidePointFront + sidePointBottom;
+    private static readonly Vector3 rotationPointBack = sidePointBack + sidePointBottom;
+    private static readonly Vector3 rotationPointLeft = sidePointLeft + sidePointBottom;
+    private static readonly Vector3 rotationPointRight = sidePointRight + sidePointBottom;
+
+    private static readonly Vector3 rotationPointFrontUp = sidePointFront + sidePointTop;
+    private static readonly Vector3 rotationPointBackUp = sidePointBack + sidePointTop;
+    private static readonly Vector3 rotationPointLeftUp = sidePointLeft + sidePointTop;
+    private static readonly Vector3 rotationPointRightUp = sidePointRight + sidePointTop;
 
     private Direction moveDirection;
     private bool isMoving = false;
@@ -20,6 +31,12 @@ public class PlayerControl : MonoBehaviour
     private float rotationApplied;
 
     private IEnumerable<SideCollider> sideColliders;
+    private SideCollider leftSide;
+    private SideCollider rightSide;
+    private SideCollider frontSide;
+    private SideCollider backSide;
+    private SideCollider topSide;
+    private SideCollider bottomSide;
 
     public Rigidbody OwnRigidbody { get; private set; }
     private GameController gameController;
@@ -30,6 +47,10 @@ public class PlayerControl : MonoBehaviour
     {
         sideColliders = GameObject.FindGameObjectsWithTag("SideCollider")
             .Select(s => s.GetComponent<SideCollider>());
+        foreach (var side in sideColliders)
+        {
+
+        }
         OwnRigidbody = GetComponent<Rigidbody>();
         gameController = GameObject.FindWithTag("GameController")
             .GetComponent<GameController>();
@@ -37,7 +58,8 @@ public class PlayerControl : MonoBehaviour
 
     void Update()
     {
-        if (!OwnRigidbody.isKinematic)
+        var isFalling = !OwnRigidbody.isKinematic;
+        if (isFalling)
         {
             if (transform.position.y < -5f)
             {
@@ -135,30 +157,30 @@ public class PlayerControl : MonoBehaviour
                 case Direction.Forward:
                     rotationAxis = Vector3.right;
                     angleSign = 1f;
-                    relativeRotationPoint = relativePointForward;
+                    relativeRotationPoint = rotationPointForward;
                     break;
                 case Direction.Back:
                     rotationAxis = Vector3.right;
                     angleSign = -1f;
-                    relativeRotationPoint = relativePointBack;
+                    relativeRotationPoint = rotationPointBack;
                     break;
                 case Direction.Left:
                     rotationAxis = Vector3.forward;
                     angleSign = 1f;
                     if (!isLeftSideBlocked)
                     {
-                        relativeRotationPoint = relativePointLeft;
+                        relativeRotationPoint = rotationPointLeft;
                         // TODO implement other cases
                         if (leftSticky != null)
                         {
-                            relativeRotationPoint = relativePointLeftUp;
+                            relativeRotationPoint = rotationPointLeftUp;
                         }
                     }
                     break;
                 case Direction.Right:
                     rotationAxis = Vector3.forward;
                     angleSign = -1f;
-                    relativeRotationPoint = relativePointRight;
+                    relativeRotationPoint = rotationPointRight;
                     break;
             }
             if (relativeRotationPoint.HasValue)
@@ -185,10 +207,10 @@ public class PlayerControl : MonoBehaviour
 
     private void FinishMovement()
     {
-        moveDirection = Direction.None;
-        isMoving = false;
         RoundPositionAndRotation();
         CheckIfLaysOnGround();
+        moveDirection = Direction.None;
+        isMoving = false;
     }
 
     private void CheckIfLaysOnGround()
