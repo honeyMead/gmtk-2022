@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,7 +11,7 @@ public class PlayerControl : MonoBehaviour
 
     private Vector3 relativePointLeftUp = new(-0.5f, 0.5f, 0);
 
-    private KeyCode currentKey;
+    private Direction moveDirection;
     private bool isMoving = false;
 
     private Vector3 absoluteRotationPoint;
@@ -48,6 +47,8 @@ public class PlayerControl : MonoBehaviour
         }
         if (!isMoving)
         {
+            SetMoveDirectionFromPressedKey();
+
             SetCurrentKeyIfApplicable(KeyCode.W);
             SetCurrentKeyIfApplicable(KeyCode.S);
             SetCurrentKeyIfApplicable(KeyCode.A);
@@ -56,6 +57,26 @@ public class PlayerControl : MonoBehaviour
         if (isMoving)
         {
             Roll();
+        }
+    }
+
+    private void SetMoveDirectionFromPressedKey()
+    {
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+        {
+            moveDirection = Direction.Forward;
+        }
+        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+        {
+            moveDirection = Direction.Back;
+        }
+        else if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+        {
+            moveDirection = Direction.Left;
+        }
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        {
+            moveDirection = Direction.Right;
         }
     }
 
@@ -104,25 +125,24 @@ public class PlayerControl : MonoBehaviour
             }
         }
 
-        if (Input.GetKey(key))
+        if (moveDirection != Direction.None)
         {
-            currentKey = key;
             isMoving = true;
             Vector3? relativeRotationPoint = null;
 
-            switch (currentKey)
+            switch (moveDirection)
             {
-                case KeyCode.W:
+                case Direction.Forward:
                     rotationAxis = Vector3.right;
                     angleSign = 1f;
                     relativeRotationPoint = relativePointForward;
                     break;
-                case KeyCode.S:
+                case Direction.Back:
                     rotationAxis = Vector3.right;
                     angleSign = -1f;
                     relativeRotationPoint = relativePointBack;
                     break;
-                case KeyCode.A:
+                case Direction.Left:
                     rotationAxis = Vector3.forward;
                     angleSign = 1f;
                     if (!isLeftSideBlocked)
@@ -135,7 +155,7 @@ public class PlayerControl : MonoBehaviour
                         }
                     }
                     break;
-                case KeyCode.D:
+                case Direction.Right:
                     rotationAxis = Vector3.forward;
                     angleSign = -1f;
                     relativeRotationPoint = relativePointRight;
@@ -165,7 +185,7 @@ public class PlayerControl : MonoBehaviour
 
     private void FinishMovement()
     {
-        currentKey = KeyCode.None;
+        moveDirection = Direction.None;
         isMoving = false;
         RoundPositionAndRotation();
         CheckIfLaysOnGround();
