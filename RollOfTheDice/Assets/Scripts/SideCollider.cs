@@ -1,14 +1,13 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SideCollider : MonoBehaviour
 {
     public int dotValue;
+    public bool IsSticking { get; private set; } = false;
+    private DiceLogic touchingDie = null;
+
     private GameController gameController;
     private PlayerControl player;
-    public bool IsSticking { get; private set; } = false;
-
-    public DiceLogic TouchingDie { get; private set; } = null;
 
     void Start()
     {
@@ -23,7 +22,7 @@ public class SideCollider : MonoBehaviour
         if (other.CompareTag("Die"))
         {
             var die = other.GetComponent<DiceLogic>();
-            TouchingDie = die;
+            touchingDie = die;
         }
 
         if (!other.CompareTag("Player"))
@@ -60,7 +59,7 @@ public class SideCollider : MonoBehaviour
     {
         if (other.CompareTag("Die"))
         {
-            TouchingDie = null;
+            touchingDie = null;
             var die = other.GetComponent<DiceLogic>();
 
             if (die.isSticky)
@@ -70,5 +69,10 @@ public class SideCollider : MonoBehaviour
                 IsSticking = false;
             }
         }
+    }
+
+    public bool IsColliding()
+    {
+        return touchingDie != null;
     }
 }

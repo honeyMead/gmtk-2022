@@ -32,7 +32,7 @@ public class DiceLogic : MonoBehaviour
         SetDieDotValues();
     }
 
-    public void RoundPositionAndRotation() // TODO private
+    private void RoundPositionAndRotation()
     {
         var xRotation = RoundToNextOfNinety(transform.rotation.eulerAngles.x);
         var yRotation = RoundToNextOfNinety(transform.rotation.eulerAngles.y);

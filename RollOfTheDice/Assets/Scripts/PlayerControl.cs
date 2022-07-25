@@ -11,7 +11,7 @@ public class PlayerControl : MonoBehaviour
     private static readonly Vector3 sidePointBack = new(0, 0, -D);
     private static readonly Vector3 sidePointTop = new(0, D, 0);
     private static readonly Vector3 sidePointBottom = new(0, -D, 0);
-
+    // TODO calculate all rotation points dynamically to get less code ??
     private static readonly Vector3 rotationPointForward = sidePointFront + sidePointBottom;
     private static readonly Vector3 rotationPointBack = sidePointBack + sidePointBottom;
     private static readonly Vector3 rotationPointLeft = sidePointLeft + sidePointBottom;
@@ -101,11 +101,13 @@ public class PlayerControl : MonoBehaviour
     {
         if (!OwnRigidbody.isKinematic)
         {
-            var isBottomCollider = (sideCollider.position - transform.position).y < -0.1f;
+            var side = sideCollider.GetComponent<SideCollider>();
+            var isBottomCollider = side == bottomSide;
+
             if (isBottomCollider)
             {
                 OwnRigidbody.isKinematic = true;
-                diceLogic.RoundPositionAndRotation();
+                diceLogic.SettleInPlace();
             }
         }
     }
@@ -136,19 +138,34 @@ public class PlayerControl : MonoBehaviour
                 rotationAxis = Vector3.forward;
                 angleSign = 1f;
 
-                if (leftSide.TouchingDie == null)
+                if (leftSide.IsSticking)
+                {
+                    relativeRotationPoint = rotationPointLeftUp; // TODO check if up is free
+                }
+                else if (!leftSide.IsColliding())
                 {
                     relativeRotationPoint = rotationPointLeft;
-                }
-                else if (leftSide.TouchingDie.isSticky)
-                {
-                    relativeRotationPoint = rotationPointLeftUp;
                 }
                 break;
             case Direction.Right:
                 rotationAxis = Vector3.forward;
                 angleSign = -1f;
-                relativeRotationPoint = rotationPointRight;
+
+                if (rightSide.IsSticking)
+                {
+                    relativeRotationPoint = rotationPointRightUp; // TODO check if up is free
+                }
+                else if (!rightSide.IsColliding())
+                {
+                    if (leftSide.IsSticking)
+                    {
+                        relativeRotationPoint = rotationPointLeft; // TODO check if down is free
+                    }
+                    else
+                    {
+                        relativeRotationPoint = rotationPointRight;
+                    }
+                }
                 break;
         }
         if (relativeRotationPoint.HasValue)
@@ -183,7 +200,7 @@ public class PlayerControl : MonoBehaviour
 
     private void CheckIfLaysOnGroundOrSticks()
     {
-        var collidingSides = sideColliders.Where(s => s.TouchingDie != null);
+        var collidingSides = sideColliders.Where(s => s.IsColliding());
         var bottomCollider = collidingSides
             .SingleOrDefault(s => (s.transform.position - transform.position).y < -0.1f);
 
