@@ -223,7 +223,7 @@ public class PlayerControl : MonoBehaviour
 
         if (isNotGrounded)
         {
-            var isSticking = collidingSides.Any(s => s.IsSticking());
+            var isSticking = collidingSides.Any(s => s.IsSticking);
 
             if (!isSticking)
             {

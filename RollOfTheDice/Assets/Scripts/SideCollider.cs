@@ -6,7 +6,7 @@ public class SideCollider : MonoBehaviour
     public int dotValue;
     private GameController gameController;
     private PlayerControl player;
-    private bool isSticking = false;
+    public bool IsSticking { get; private set; } = false;
 
     public IList<DiceLogic> TouchingDice { get; private set; } = new List<DiceLogic>();
 
@@ -44,19 +44,19 @@ public class SideCollider : MonoBehaviour
                     gameController.LoadNextLevel();
                 }
             }
-        }
-        else if (other.CompareTag("StickyDie"))
-        {
-            var stickyDie = other.gameObject.GetComponent<StickyDie>();
-            if (stickyDie.sideValue == dotValue)
+            else if (die.isSticky)
             {
-                player.isLeftSideBlocked = false;
-                player.stickyDice.Add(stickyDie);
-                isSticking = true;
-            }
-            else
-            {
-                player.isLeftSideBlocked = true;
+                var stickyDie = other.gameObject.GetComponent<StickyDie>();
+                if (stickyDie.sideValue == dotValue)
+                {
+                    player.isLeftSideBlocked = false;
+                    player.stickyDice.Add(stickyDie);
+                    IsSticking = true;
+                }
+                else
+                {
+                    player.isLeftSideBlocked = true;
+                }
             }
         }
     }
@@ -67,24 +67,19 @@ public class SideCollider : MonoBehaviour
         {
             var die = other.GetComponent<DiceLogic>();
             TouchingDice.Remove(die);
-        }
 
-        if (other.CompareTag("StickyDie"))
-        {
-            player.isLeftSideBlocked = false;
-            var stickyDie = other.gameObject.GetComponent<StickyDie>();
-            player.stickyDice.Remove(stickyDie);
-            isSticking = false;
+            if (die.isSticky)
+            {
+                player.isLeftSideBlocked = false;
+                var stickyDie = other.gameObject.GetComponent<StickyDie>();
+                player.stickyDice.Remove(stickyDie);
+                IsSticking = false;
+            }
         }
     }
 
     public bool IsColliding()
     {
-        return TouchingDice.Count > 0; // TODO fix (set Tag of sticky dice to "Die")
-    }
-
-    public bool IsSticking()
-    {
-        return isSticking; // TODO fix
+        return TouchingDice.Count > 0;
     }
 }
