@@ -48,11 +48,12 @@ public class PlayerControl : MonoBehaviour
     {
         sideColliders = GameObject.FindGameObjectsWithTag("SideCollider")
             .Select(s => s.GetComponent<SideCollider>());
-        SetSideColliders();
         OwnRigidbody = GetComponent<Rigidbody>();
         gameController = GameObject.FindWithTag("GameController")
             .GetComponent<GameController>();
         diceLogic = GetComponent<DiceLogic>();
+        diceLogic.SettleInPlace();
+        SetSideColliders();
     }
 
     void Update()
@@ -101,7 +102,7 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
-    public void SideCollided(Transform sideCollider)
+    public void SideCollided(Transform sideCollider) // TODO handle falling without unity physic engine
     {
         if (!OwnRigidbody.isKinematic)
         {
@@ -206,7 +207,7 @@ public class PlayerControl : MonoBehaviour
 
     private void FinishMovement()
     {
-        diceLogic.RoundPositionAndRotation();
+        diceLogic.SettleInPlace();
         CheckIfLaysOnGroundOrSticks();
         SetSideColliders();
         moveDirection = Direction.None;
@@ -232,39 +233,37 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
-    private void SetSideColliders() // TODO use SetDieDotValues from dice logic to first set all dot values and then get the right collider with the number
+    private void SetSideColliders()
     {
         foreach (var side in sideColliders)
         {
-            var relativeSidePosition = side.transform.position - this.transform.position;
-            if (relativeSidePosition == sidePointLeft)
-            {
-                leftSide = side;
-            }
-            else if (relativeSidePosition == sidePointRight)
-            {
-                rightSide = side;
-            }
-            else if (relativeSidePosition == sidePointFront)
-            {
-                frontSide = side;
-            }
-            else if (relativeSidePosition == sidePointBack)
-            {
-                backSide = side;
-            }
-            else if (relativeSidePosition == sidePointTop)
+            if (side.dotValue == diceLogic.TopDotValue)
             {
                 topSide = side;
             }
-            else if (relativeSidePosition == sidePointBottom)
+            else if (side.dotValue == diceLogic.BottomDotValue)
             {
                 bottomSide = side;
             }
+            else if (side.dotValue == diceLogic.LeftDotValue)
+            {
+                leftSide = side;
+            }
+            else if (side.dotValue == diceLogic.RightDotValue)
+            {
+                rightSide = side;
+            }
+            else if (side.dotValue == diceLogic.FrontDotValue)
+            {
+                frontSide = side;
+            }
+            else if (side.dotValue == diceLogic.BackDotValue)
+            {
+                backSide = side;
+            }
             else
             {
-                Debug.LogWarning($"Could not set side collider. Relative position: " +
-                    $"x: {relativeSidePosition.x}, y: {relativeSidePosition.y}, z: {relativeSidePosition.z}");
+                Debug.LogWarning($"Could not set side collider.");
             }
         }
     }

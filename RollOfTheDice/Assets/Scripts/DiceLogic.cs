@@ -23,11 +23,16 @@ public class DiceLogic : MonoBehaviour
 
     void Start()
     {
+        SettleInPlace();
+    }
+
+    public void SettleInPlace() // TODO rename
+    {
         RoundPositionAndRotation();
         SetDieDotValues();
     }
 
-    public void RoundPositionAndRotation()
+    public void RoundPositionAndRotation() // TODO private
     {
         var xRotation = RoundToNextOfNinety(transform.rotation.eulerAngles.x);
         var yRotation = RoundToNextOfNinety(transform.rotation.eulerAngles.y);
@@ -47,7 +52,7 @@ public class DiceLogic : MonoBehaviour
         return Mathf.Round(a / 90) * 90;
     }
 
-    public void SetDieDotValues()
+    private void SetDieDotValues()
     {
         ResetDotValues();
         SetDotValuesDependingOnOrientation();
