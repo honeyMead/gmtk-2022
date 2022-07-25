@@ -42,7 +42,6 @@ public class PlayerControl : MonoBehaviour
     private GameController gameController;
     private DiceLogic diceLogic;
     public IList<StickyDie> stickyDice = new List<StickyDie>();
-    internal bool isLeftSideBlocked; // HACK to prevent rolling through sticky colliders with other side number
 
     void Start()
     {
@@ -70,11 +69,7 @@ public class PlayerControl : MonoBehaviour
         if (!isMoving)
         {
             SetMoveDirectionFromPressedKey();
-
-            SetCurrentKeyIfApplicable(KeyCode.W);
-            SetCurrentKeyIfApplicable(KeyCode.S);
-            SetCurrentKeyIfApplicable(KeyCode.A);
-            SetCurrentKeyIfApplicable(KeyCode.D);
+            SetMovementRotationPoint();
         }
         if (isMoving)
         {
@@ -115,79 +110,51 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
-    private void SetCurrentKeyIfApplicable(KeyCode key)
+    private void SetMovementRotationPoint()
     {
-        StickyDie leftSticky = null;
-        StickyDie rightSticky = null;
-        StickyDie frontSticky = null;
-        StickyDie backSticky = null;
-
-        foreach (var stickyDie in stickyDice)
+        if (moveDirection == Direction.None)
         {
-            var direction = stickyDie.transform.position - transform.position;
-            if (direction.x < 0)
-            {
-                leftSticky = stickyDie;
-                break;
-            }
-            if (direction.x > 0)
-            {
-                rightSticky = stickyDie;
-                break;
-            }
-            if (direction.z > 0)
-            {
-                frontSticky = stickyDie;
-                break;
-            }
-            if (direction.z < 0)
-            {
-                backSticky = stickyDie;
-                break;
-            }
+            return;
         }
 
-        if (moveDirection != Direction.None)
-        {
-            isMoving = true;
-            Vector3? relativeRotationPoint = null;
+        isMoving = true;
+        Vector3? relativeRotationPoint = null;
 
-            switch (moveDirection)
-            {
-                case Direction.Forward:
-                    rotationAxis = Vector3.right;
-                    angleSign = 1f;
-                    relativeRotationPoint = rotationPointForward;
-                    break;
-                case Direction.Back:
-                    rotationAxis = Vector3.right;
-                    angleSign = -1f;
-                    relativeRotationPoint = rotationPointBack;
-                    break;
-                case Direction.Left:
-                    rotationAxis = Vector3.forward;
-                    angleSign = 1f;
-                    if (!isLeftSideBlocked)
-                    {
-                        relativeRotationPoint = rotationPointLeft;
-                        // TODO implement other cases
-                        if (leftSticky != null)
-                        {
-                            relativeRotationPoint = rotationPointLeftUp;
-                        }
-                    }
-                    break;
-                case Direction.Right:
-                    rotationAxis = Vector3.forward;
-                    angleSign = -1f;
-                    relativeRotationPoint = rotationPointRight;
-                    break;
-            }
-            if (relativeRotationPoint.HasValue)
-            {
-                absoluteRotationPoint = transform.position + relativeRotationPoint.Value;
-                rotationApplied = 0;
-            }
+        switch (moveDirection)
+        {
+            case Direction.Forward:
+                rotationAxis = Vector3.right;
+                angleSign = 1f;
+                relativeRotationPoint = rotationPointForward;
+                break;
+            case Direction.Back:
+                rotationAxis = Vector3.right;
+                angleSign = -1f;
+                relativeRotationPoint = rotationPointBack;
+                break;
+            case Direction.Left:
+                rotationAxis = Vector3.forward;
+                angleSign = 1f;
+
+                if (leftSide.TouchingDie == null)
+                {
+                    relativeRotationPoint = rotationPointLeft;
+                }
+                else if (leftSide.TouchingDie.isSticky)
+                {
+                    relativeRotationPoint = rotationPointLeftUp;
+                }
+                break;
+            case Direction.Right:
+                rotationAxis = Vector3.forward;
+                angleSign = -1f;
+                relativeRotationPoint = rotationPointRight;
+                break;
+        }
+        if (relativeRotationPoint.HasValue)
+        {
+            absoluteRotationPoint = transform.position + relativeRotationPoint.Value;
+            rotationApplied = 0;
         }
     }
 
@@ -216,7 +183,7 @@ public class PlayerControl : MonoBehaviour
 
     private void CheckIfLaysOnGroundOrSticks()
     {
-        var collidingSides = sideColliders.Where(s => s.IsColliding());
+        var collidingSides = sideColliders.Where(s => s.TouchingDie != null);
         var bottomCollider = collidingSides
             .SingleOrDefault(s => (s.transform.position - transform.position).y < -0.1f);
 

@@ -8,7 +8,7 @@ public class SideCollider : MonoBehaviour
     private PlayerControl player;
     public bool IsSticking { get; private set; } = false;
 
-    public IList<DiceLogic> TouchingDice { get; private set; } = new List<DiceLogic>();
+    public DiceLogic TouchingDie { get; private set; } = null;
 
     void Start()
     {
@@ -23,7 +23,7 @@ public class SideCollider : MonoBehaviour
         if (other.CompareTag("Die"))
         {
             var die = other.GetComponent<DiceLogic>();
-            TouchingDice.Add(die);
+            TouchingDie = die;
         }
 
         if (!other.CompareTag("Player"))
@@ -49,13 +49,8 @@ public class SideCollider : MonoBehaviour
                 var stickyDie = other.gameObject.GetComponent<StickyDie>();
                 if (stickyDie.sideValue == dotValue)
                 {
-                    player.isLeftSideBlocked = false;
                     player.stickyDice.Add(stickyDie);
                     IsSticking = true;
-                }
-                else
-                {
-                    player.isLeftSideBlocked = true;
                 }
             }
         }
@@ -65,21 +60,15 @@ public class SideCollider : MonoBehaviour
     {
         if (other.CompareTag("Die"))
         {
+            TouchingDie = null;
             var die = other.GetComponent<DiceLogic>();
-            TouchingDice.Remove(die);
 
             if (die.isSticky)
             {
-                player.isLeftSideBlocked = false;
                 var stickyDie = other.gameObject.GetComponent<StickyDie>();
                 player.stickyDice.Remove(stickyDie);
                 IsSticking = false;
             }
         }
-    }
-
-    public bool IsColliding()
-    {
-        return TouchingDice.Count > 0;
     }
 }
