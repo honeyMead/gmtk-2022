@@ -11,16 +11,6 @@ public class PlayerControl : MonoBehaviour
     private static readonly Vector3 sidePointBack = new(0, 0, -D);
     private static readonly Vector3 sidePointTop = new(0, D, 0);
     private static readonly Vector3 sidePointBottom = new(0, -D, 0);
-    // TODO calculate all rotation points dynamically to get less code ??
-    private static readonly Vector3 rotationPointForward = sidePointFront + sidePointBottom;
-    private static readonly Vector3 rotationPointBack = sidePointBack + sidePointBottom;
-    private static readonly Vector3 rotationPointLeft = sidePointLeft + sidePointBottom;
-    private static readonly Vector3 rotationPointRight = sidePointRight + sidePointBottom;
-
-    private static readonly Vector3 rotationPointFrontUp = sidePointFront + sidePointTop;
-    private static readonly Vector3 rotationPointBackUp = sidePointBack + sidePointTop;
-    private static readonly Vector3 rotationPointLeftUp = sidePointLeft + sidePointTop;
-    private static readonly Vector3 rotationPointRightUp = sidePointRight + sidePointTop;
 
     private Direction moveDirection;
     private bool isMoving = false;
@@ -119,59 +109,67 @@ public class PlayerControl : MonoBehaviour
             return;
         }
 
-        isMoving = true;
-        Vector3? relativeRotationPoint = null;
+        Vector3? ownSidePoint = null;
+        Vector3? oppositeSidePoint = null;
+        SideCollider ownSide = null;
+        SideCollider oppositeSide = null;
 
         switch (moveDirection)
         {
             case Direction.Forward:
                 rotationAxis = Vector3.right;
                 angleSign = 1f;
-                relativeRotationPoint = rotationPointForward;
+                ownSidePoint = sidePointFront;
+                oppositeSidePoint = sidePointBack;
+                ownSide = frontSide;
+                oppositeSide = backSide;
                 break;
             case Direction.Back:
                 rotationAxis = Vector3.right;
                 angleSign = -1f;
-                relativeRotationPoint = rotationPointBack;
+                ownSidePoint = sidePointBack;
+                oppositeSidePoint = sidePointFront;
+                ownSide = backSide;
+                oppositeSide = frontSide;
                 break;
             case Direction.Left:
                 rotationAxis = Vector3.forward;
                 angleSign = 1f;
-
-                if (leftSide.IsSticking)
-                {
-                    relativeRotationPoint = rotationPointLeftUp; // TODO check if up is free
-                }
-                else if (!leftSide.IsColliding())
-                {
-                    relativeRotationPoint = rotationPointLeft;
-                }
+                ownSidePoint = sidePointLeft;
+                oppositeSidePoint = sidePointRight;
+                ownSide = leftSide;
+                oppositeSide = rightSide;
                 break;
             case Direction.Right:
                 rotationAxis = Vector3.forward;
                 angleSign = -1f;
-
-                if (rightSide.IsSticking)
-                {
-                    relativeRotationPoint = rotationPointRightUp; // TODO check if up is free
-                }
-                else if (!rightSide.IsColliding())
-                {
-                    if (leftSide.IsSticking)
-                    {
-                        relativeRotationPoint = rotationPointLeft; // TODO check if down is free
-                    }
-                    else
-                    {
-                        relativeRotationPoint = rotationPointRight;
-                    }
-                }
+                ownSidePoint = sidePointRight;
+                oppositeSidePoint = sidePointLeft;
+                ownSide = rightSide;
+                oppositeSide = leftSide;
                 break;
+        }
+        Vector3? relativeRotationPoint = null;
+        if (ownSide.IsSticking)
+        {
+            relativeRotationPoint = ownSidePoint.Value + sidePointTop;
+        }
+        else if (!ownSide.IsColliding())
+        {
+            if (oppositeSide.IsSticking)
+            {
+                relativeRotationPoint = oppositeSidePoint.Value + sidePointBottom;
+            }
+            else
+            {
+                relativeRotationPoint = ownSidePoint.Value + sidePointBottom;
+            }
         }
         if (relativeRotationPoint.HasValue)
         {
             absoluteRotationPoint = transform.position + relativeRotationPoint.Value;
             rotationApplied = 0;
+            isMoving = true;
         }
     }
 
