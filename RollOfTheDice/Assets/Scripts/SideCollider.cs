@@ -19,55 +19,53 @@ public class SideCollider : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Die"))
+        if (!other.CompareTag("Die"))
         {
-            var die = other.GetComponent<DiceLogic>();
-            touchingDie = die;
+            return;
         }
+        var die = other.GetComponent<DiceLogic>();
+        touchingDie = die;
 
-        if (!other.CompareTag("Player"))
-        {
-            player.SideCollided(transform);
-        }
+        player.SideCollided(transform);
 
-        if (other.CompareTag("Die"))
+        if (die.isFinish)
         {
-            var die = other.GetComponent<DiceLogic>();
-            if (die.isFinish)
+            var finish = other.GetComponent<Finish>();
+
+            if (finish.winValue == dotValue)
             {
-                var finish = other.GetComponent<Finish>();
-
-                if (finish.winValue == dotValue)
-                {
-                    finish.Win();
-                    gameController.LoadNextLevel();
-                }
+                finish.Win();
+                gameController.LoadNextLevel();
             }
-            else if (die.isSticky)
+        }
+        else if (die.isSticky)
+        {
+            var stickyDie = other.gameObject.GetComponent<StickyDie>();
+            if (stickyDie.sideValue == dotValue)
             {
-                var stickyDie = other.gameObject.GetComponent<StickyDie>();
-                if (stickyDie.sideValue == dotValue)
-                {
-                    player.stickyDice.Add(stickyDie);
-                    IsSticking = true;
-                }
+                player.stickyDice.Add(stickyDie);
+                IsSticking = true;
             }
         }
     }
 
     void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Die"))
+        if (!other.CompareTag("Die"))
+        {
+            return;
+        }
+        var die = other.GetComponent<DiceLogic>();
+        if (die == touchingDie) // when falling, a side collider can touch two dice colliders in parallel
         {
             touchingDie = null;
-            var die = other.GetComponent<DiceLogic>();
+        }
 
-            if (die.isSticky)
-            {
-                var stickyDie = other.gameObject.GetComponent<StickyDie>();
-                player.stickyDice.Remove(stickyDie);
-                IsSticking = false;
-            }
+        if (die.isSticky)
+        {
+            var stickyDie = other.gameObject.GetComponent<StickyDie>();
+            player.stickyDice.Remove(stickyDie);
+            IsSticking = false;
         }
     }
 
