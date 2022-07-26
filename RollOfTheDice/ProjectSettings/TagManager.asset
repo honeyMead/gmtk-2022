@@ -9,6 +9,7 @@ TagManager:
   - Music
   - StickyDie
   - Die
+  - EnvDieCollider
   layers:
   - Default
   - TransparentFX

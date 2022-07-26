@@ -45,7 +45,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.25
+  m_Radius: 0.2
   m_Center: {x: 0.25, y: 0, z: 0}
 --- !u!54 &4796708584293377449
 Rigidbody:
@@ -121,7 +121,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.25
+  m_Radius: 0.2
   m_Center: {x: 0, y: 0.25, z: 0}
 --- !u!54 &4796708584373656190
 Rigidbody:
@@ -197,7 +197,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.25
+  m_Radius: 0.2
   m_Center: {x: 0, y: 0, z: 0.25}
 --- !u!54 &4796708585052057145
 Rigidbody:
@@ -273,7 +273,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.25
+  m_Radius: 0.2
   m_Center: {x: 0, y: 0, z: -0.25}
 --- !u!54 &4796708585314238495
 Rigidbody:
@@ -349,7 +349,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.25
+  m_Radius: 0.2
   m_Center: {x: -0.25, y: 0, z: 0}
 --- !u!54 &4796708585351616620
 Rigidbody:
@@ -425,7 +425,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.25
+  m_Radius: 0.2
   m_Center: {x: 0, y: -0.25, z: 0}
 --- !u!54 &4796708585389664696
 Rigidbody:
@@ -503,7 +503,7 @@ Rigidbody:
   serializedVersion: 2
   m_Mass: 4
   m_Drag: 0
-  m_AngularDrag: 0
+  m_AngularDrag: 5
   m_UseGravity: 1
   m_IsKinematic: 1
   m_Interpolate: 0

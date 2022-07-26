@@ -7,11 +7,13 @@ public class GameController : MonoBehaviour
 {
     private GameObject ui;
     private static GameObject permanentMusic = null;
+    private AudioSource sfx;
 
     void Start()
     {
         ui = GameObject.FindWithTag("UI");
         ui.SetActive(false);
+        sfx = GetComponent<AudioSource>();
 
         if (permanentMusic == null)
         {
@@ -27,12 +29,17 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void LoadNextLevel()
+    public void WinScene()
+    {
+        sfx.Play();
+        Time.timeScale = 0.2f;
+        StartCoroutine(Waiter(() => LoadNextLevel()));
+    }
+
+    private void LoadNextLevel()
     {
         var currentLevel = SceneManager.GetActiveScene().buildIndex;
         var nextLevel = currentLevel + 1;
-
-        Time.timeScale = 0.2f;
 
         if (nextLevel < SceneManager.sceneCountInBuildSettings)
         {

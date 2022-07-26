@@ -31,7 +31,7 @@ public class PlayerControl : MonoBehaviour
     public Rigidbody OwnRigidbody { get; private set; }
     private GameController gameController;
     private DiceLogic diceLogic;
-    public IList<StickyDie> stickyDice = new List<StickyDie>();
+    public IList<EnvDieCollider> stickyDice = new List<EnvDieCollider>();
 
     void Start()
     {
@@ -47,8 +47,9 @@ public class PlayerControl : MonoBehaviour
 
     void Update()
     {
+        var isSlowMo = Time.timeScale != 1;
         var isFalling = !OwnRigidbody.isKinematic;
-        if (isFalling)
+        if (isFalling && !isSlowMo)
         {
             if (transform.position.y < -5f)
             {
@@ -56,7 +57,7 @@ public class PlayerControl : MonoBehaviour
             }
             return;
         }
-        if (!isMoving)
+        if (!isMoving && !isSlowMo)
         {
             SetMoveDirectionFromPressedKey();
             SetMovementRotationPoint();
