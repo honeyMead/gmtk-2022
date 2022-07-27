@@ -65,6 +65,7 @@ public class GameController : MonoBehaviour
 
     public void RestartLevel()
     {
+        Time.timeScale = 1;
         var currentScene = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(currentScene);
     }
