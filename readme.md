@@ -6,6 +6,11 @@ My game is called: **"Dice de los muertos"**. Play it on [itch.io](https://honey
 
 ![Logo](calavera.png)
 
+**Controls**  
+WASD or arrow keys to move.  
+Space or CTRL to mirror cam.  
+R to restart the current level.  
+
 ## Attribution
 
 Calavera icon by [Delapouite](https://delapouite.com/) under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0/).  
