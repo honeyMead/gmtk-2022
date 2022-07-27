@@ -31,6 +31,7 @@ public class PlayerControl : MonoBehaviour
     public Rigidbody OwnRigidbody { get; private set; }
     private GameController gameController;
     private DiceLogic diceLogic;
+
     public IList<EnvDieCollider> stickyDice = new List<EnvDieCollider>();
 
     void Start()
@@ -153,11 +154,14 @@ public class PlayerControl : MonoBehaviour
         Vector3? relativeRotationPoint = null;
         if (ownSide.IsSticking)
         {
-            relativeRotationPoint = ownSidePoint.Value + sidePointTop;
+            if (!topSide.IsColliding())
+            {
+                relativeRotationPoint = ownSidePoint.Value + sidePointTop;
+            }
         }
         else if (!ownSide.IsColliding())
         {
-            if (oppositeSide.IsSticking)
+            if (oppositeSide.IsSticking && !bottomSide.IsColliding())
             {
                 relativeRotationPoint = oppositeSidePoint.Value + sidePointBottom;
             }
