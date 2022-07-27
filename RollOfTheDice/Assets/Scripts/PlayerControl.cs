@@ -48,6 +48,10 @@ public class PlayerControl : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            gameController.RestartLevel();
+        }
         var isSlowMo = Time.timeScale != 1;
         var isFalling = !OwnRigidbody.isKinematic;
         if (isFalling && !isSlowMo)
