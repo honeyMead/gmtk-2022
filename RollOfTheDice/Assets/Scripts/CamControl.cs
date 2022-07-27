@@ -2,26 +2,30 @@ using UnityEngine;
 
 public class CamControl : MonoBehaviour
 {
-    private float initialX;
-    private float initialYRotation;
+    private Vector3 defaultPosition;
+    private Vector3 mirroredPosition;
+
+    private Quaternion defaultRotation;
+    private Quaternion mirroredRotation;
 
     void Start()
     {
-        initialX = transform.position.x;
-        initialYRotation = transform.rotation.eulerAngles.y;
+        defaultPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        mirroredPosition = new Vector3(-transform.position.x, transform.position.y, transform.position.z);
+
+        defaultRotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
+        mirroredRotation = Quaternion.Euler(transform.rotation.eulerAngles.x, -transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.z);
     }
 
     void Update()
     {
         if (Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
         {
-            transform.SetPositionAndRotation(new Vector3(-initialX, transform.position.y, transform.position.z),
-                Quaternion.Euler(transform.rotation.eulerAngles.x, -initialYRotation, transform.rotation.eulerAngles.z));
+            transform.SetPositionAndRotation(mirroredPosition, mirroredRotation);
         }
         else
         {
-            transform.SetPositionAndRotation(new Vector3(initialX, transform.position.y, transform.position.z),
-                Quaternion.Euler(transform.rotation.eulerAngles.x, initialYRotation, transform.rotation.eulerAngles.z));
+            transform.SetPositionAndRotation(defaultPosition, defaultRotation);
         }
     }
 }

@@ -10,6 +10,7 @@ My game is called: **"Dice de los muertos"**. Play it on [itch.io](https://honey
 WASD or arrow keys to move.  
 Space or CTRL to mirror cam.  
 R to restart the current level.  
+Q or X to make the die transparent.  
 
 ## Attribution
 
