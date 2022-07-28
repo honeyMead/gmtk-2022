@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class DiceLogic : MonoBehaviour
@@ -11,6 +12,23 @@ public class DiceLogic : MonoBehaviour
     public int BottomDotValue { get; private set; }
     public int RightDotValue { get; private set; }
     public int LeftDotValue { get; private set; }
+
+    public bool IsMoving { get; private set; } = false;
+
+    private const float D = 0.5f;
+    private static readonly Vector3 sidePointLeft = new(-D, 0, 0);
+    private static readonly Vector3 sidePointRight = new(D, 0, 0);
+    private static readonly Vector3 sidePointFront = new(0, 0, D);
+    private static readonly Vector3 sidePointBack = new(0, 0, -D);
+    private static readonly Vector3 sidePointTop = new(0, D, 0);
+    private static readonly Vector3 sidePointBottom = new(0, -D, 0);
+
+    private Direction moveDirection;
+    private Vector3 absoluteRotationPoint;
+    private Vector3 rotationAxis;
+    private float angleSign;
+    private float rotationApplied;
+    private Action actionAfterMovement;
 
     private const int SumOfOpposingDotValues = 7;
 
@@ -26,7 +44,15 @@ public class DiceLogic : MonoBehaviour
         SettleInPlace();
     }
 
-    public void SettleInPlace() // TODO rename
+    void Update()
+    {
+        if (IsMoving)
+        {
+            Roll();
+        }
+    }
+
+    public void SettleInPlace()
     {
         RoundPositionAndRotation();
         SetDieDotValues();
@@ -143,6 +169,100 @@ public class DiceLogic : MonoBehaviour
             case Direction.Down:
                 BottomDotValue = defaultValue;
                 break;
+        }
+    }
+    public void MoveIntoDirection(Direction direction, Action finishMovementAction)
+    {
+        if (direction == Direction.None)
+        {
+            return;
+        }
+        moveDirection = direction;
+        actionAfterMovement = finishMovementAction;
+
+        Vector3? ownSidePoint = null;
+        Vector3? oppositeSidePoint = null;
+
+        switch (moveDirection)
+        {
+            case Direction.Forward:
+            case Direction.ForwardUp:
+            case Direction.ForwardDown:
+                rotationAxis = Vector3.right;
+                angleSign = 1f;
+                ownSidePoint = sidePointFront;
+                oppositeSidePoint = sidePointBack;
+                break;
+            case Direction.Back:
+            case Direction.BackUp:
+            case Direction.BackDown:
+                rotationAxis = Vector3.right;
+                angleSign = -1f;
+                ownSidePoint = sidePointBack;
+                oppositeSidePoint = sidePointFront;
+                break;
+            case Direction.Left:
+            case Direction.LeftUp:
+            case Direction.LeftDown:
+                rotationAxis = Vector3.forward;
+                angleSign = 1f;
+                ownSidePoint = sidePointLeft;
+                oppositeSidePoint = sidePointRight;
+                break;
+            case Direction.Right:
+            case Direction.RightUp:
+            case Direction.RightDown:
+                rotationAxis = Vector3.forward;
+                angleSign = -1f;
+                ownSidePoint = sidePointRight;
+                oppositeSidePoint = sidePointLeft;
+                break;
+        }
+        Vector3? relativeRotationPoint = null;
+
+        switch (direction)
+        {
+            case Direction.Forward:
+            case Direction.Back:
+            case Direction.Left:
+            case Direction.Right:
+                relativeRotationPoint = ownSidePoint.Value + sidePointBottom;
+                break;
+            case Direction.ForwardUp:
+            case Direction.BackUp:
+            case Direction.LeftUp:
+            case Direction.RightUp:
+                relativeRotationPoint = ownSidePoint.Value + sidePointTop;
+                break;
+            case Direction.ForwardDown:
+            case Direction.BackDown:
+            case Direction.LeftDown:
+            case Direction.RightDown:
+                relativeRotationPoint = oppositeSidePoint.Value + sidePointBottom;
+                break;
+        }
+        if (relativeRotationPoint.HasValue)
+        {
+            absoluteRotationPoint = transform.position + relativeRotationPoint.Value;
+            rotationApplied = 0;
+            IsMoving = true;
+        }
+    }
+
+    private void Roll()
+    {
+        var targetRotationAngle = 90f * angleSign;
+        var lerpValue = Time.deltaTime * 3;
+        var lerpedAngle = Mathf.LerpAngle(0, targetRotationAngle, lerpValue);
+        transform.RotateAround(absoluteRotationPoint, rotationAxis, lerpedAngle);
+        rotationApplied += lerpValue;
+
+        if (rotationApplied >= 1)
+        {
+            SettleInPlace();
+            actionAfterMovement();
+            moveDirection = Direction.None;
+            IsMoving = false;
         }
     }
 }

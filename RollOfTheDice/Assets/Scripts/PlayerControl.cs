@@ -1,25 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class PlayerControl : MonoBehaviour
 {
-    private const float D = 0.5f;
-    private static readonly Vector3 sidePointLeft = new(-D, 0, 0);
-    private static readonly Vector3 sidePointRight = new(D, 0, 0);
-    private static readonly Vector3 sidePointFront = new(0, 0, D);
-    private static readonly Vector3 sidePointBack = new(0, 0, -D);
-    private static readonly Vector3 sidePointTop = new(0, D, 0);
-    private static readonly Vector3 sidePointBottom = new(0, -D, 0);
-
-    private Direction moveDirection;
-    private bool isMoving = false;
-
-    private Vector3 absoluteRotationPoint;
-    private Vector3 rotationAxis;
-    private float angleSign;
-    private float rotationApplied;
-
     private IEnumerable<SideCollider> sideColliders;
     private SideCollider leftSide;
     private SideCollider rightSide;
@@ -33,6 +18,7 @@ public class PlayerControl : MonoBehaviour
     private DiceLogic diceLogic;
 
     public IList<EnvDieCollider> stickyDice = new List<EnvDieCollider>();
+    public IList<RollingDie> rollingDice = new List<RollingDie>();
 
     void Start()
     {
@@ -42,7 +28,6 @@ public class PlayerControl : MonoBehaviour
         gameController = GameObject.FindWithTag("GameController")
             .GetComponent<GameController>();
         diceLogic = GetComponent<DiceLogic>();
-        diceLogic.SettleInPlace();
         SetSideColliders();
     }
 
@@ -62,35 +47,120 @@ public class PlayerControl : MonoBehaviour
             }
             return;
         }
-        if (!isMoving && !isSlowMo)
+        if (!diceLogic.IsMoving && !isSlowMo)
         {
-            SetMoveDirectionFromPressedKey();
-            SetMovementRotationPoint();
-        }
-        if (isMoving)
-        {
-            Roll();
+            var direction = GetMoveDirectionFromKey();
+            diceLogic.MoveIntoDirection(direction, () => FinishMovement());
         }
     }
 
-    private void SetMoveDirectionFromPressedKey()
+    private Direction GetMoveDirectionFromKey()
     {
+        var wantedDirection = GetWantedDirectionFromKey();
+        if (wantedDirection == Direction.None)
+        {
+            return Direction.None;
+        }
+        SideCollider ownSide, oppositeSide;
+        GetConcernedCollidersForDirection(wantedDirection, out ownSide, out oppositeSide);
+
+        var actualMoveDirection = Direction.None;
+        if (ownSide.IsSticking)
+        {
+            if (!topSide.IsColliding())
+            {
+                switch (wantedDirection)
+                {
+                    case Direction.Left:
+                        actualMoveDirection = Direction.LeftUp;
+                        break;
+                    case Direction.Right:
+                        actualMoveDirection = Direction.RightUp;
+                        break;
+                    case Direction.Forward:
+                        actualMoveDirection = Direction.ForwardUp;
+                        break;
+                    case Direction.Back:
+                        actualMoveDirection = Direction.BackUp;
+                        break;
+                }
+            }
+        }
+        else if (!ownSide.IsColliding())
+        {
+            if (oppositeSide.IsSticking && !bottomSide.IsColliding())
+            {
+                switch (wantedDirection)
+                {
+                    case Direction.Left:
+                        actualMoveDirection = Direction.LeftDown;
+                        break;
+                    case Direction.Right:
+                        actualMoveDirection = Direction.RightDown;
+                        break;
+                    case Direction.Forward:
+                        actualMoveDirection = Direction.ForwardDown;
+                        break;
+                    case Direction.Back:
+                        actualMoveDirection = Direction.BackDown;
+                        break;
+                }
+            }
+            else
+            {
+                actualMoveDirection = wantedDirection;
+            }
+        }
+        return actualMoveDirection;
+    }
+
+    private void GetConcernedCollidersForDirection(Direction wantedDirection, out SideCollider ownSide, out SideCollider oppositeSide)
+    {
+        ownSide = null;
+        oppositeSide = null;
+        switch (wantedDirection)
+        {
+            case Direction.Forward:
+                ownSide = frontSide;
+                oppositeSide = backSide;
+                break;
+            case Direction.Back:
+                ownSide = backSide;
+                oppositeSide = frontSide;
+                break;
+            case Direction.Left:
+                ownSide = leftSide;
+                oppositeSide = rightSide;
+                break;
+            case Direction.Right:
+                ownSide = rightSide;
+                oppositeSide = leftSide;
+                break;
+        }
+    }
+
+    private static Direction GetWantedDirectionFromKey()
+    {
+        var wantedDirection = Direction.None;
+
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
         {
-            moveDirection = Direction.Forward;
+            wantedDirection = Direction.Forward;
         }
         else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
         {
-            moveDirection = Direction.Back;
+            wantedDirection = Direction.Back;
         }
         else if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
         {
-            moveDirection = Direction.Left;
+            wantedDirection = Direction.Left;
         }
         else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
         {
-            moveDirection = Direction.Right;
+            wantedDirection = Direction.Right;
         }
+
+        return wantedDirection;
     }
 
     public void SideCollided(Transform sideCollider) // TODO handle falling without unity physic engine
@@ -108,101 +178,19 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
-    private void SetMovementRotationPoint()
-    {
-        if (moveDirection == Direction.None)
-        {
-            return;
-        }
-
-        Vector3? ownSidePoint = null;
-        Vector3? oppositeSidePoint = null;
-        SideCollider ownSide = null;
-        SideCollider oppositeSide = null;
-
-        switch (moveDirection)
-        {
-            case Direction.Forward:
-                rotationAxis = Vector3.right;
-                angleSign = 1f;
-                ownSidePoint = sidePointFront;
-                oppositeSidePoint = sidePointBack;
-                ownSide = frontSide;
-                oppositeSide = backSide;
-                break;
-            case Direction.Back:
-                rotationAxis = Vector3.right;
-                angleSign = -1f;
-                ownSidePoint = sidePointBack;
-                oppositeSidePoint = sidePointFront;
-                ownSide = backSide;
-                oppositeSide = frontSide;
-                break;
-            case Direction.Left:
-                rotationAxis = Vector3.forward;
-                angleSign = 1f;
-                ownSidePoint = sidePointLeft;
-                oppositeSidePoint = sidePointRight;
-                ownSide = leftSide;
-                oppositeSide = rightSide;
-                break;
-            case Direction.Right:
-                rotationAxis = Vector3.forward;
-                angleSign = -1f;
-                ownSidePoint = sidePointRight;
-                oppositeSidePoint = sidePointLeft;
-                ownSide = rightSide;
-                oppositeSide = leftSide;
-                break;
-        }
-        Vector3? relativeRotationPoint = null;
-        if (ownSide.IsSticking)
-        {
-            if (!topSide.IsColliding())
-            {
-                relativeRotationPoint = ownSidePoint.Value + sidePointTop;
-            }
-        }
-        else if (!ownSide.IsColliding())
-        {
-            if (oppositeSide.IsSticking && !bottomSide.IsColliding())
-            {
-                relativeRotationPoint = oppositeSidePoint.Value + sidePointBottom;
-            }
-            else
-            {
-                relativeRotationPoint = ownSidePoint.Value + sidePointBottom;
-            }
-        }
-        if (relativeRotationPoint.HasValue)
-        {
-            absoluteRotationPoint = transform.position + relativeRotationPoint.Value;
-            rotationApplied = 0;
-            isMoving = true;
-        }
-    }
-
-    private void Roll()
-    {
-        var targetRotationAngle = 90f * angleSign;
-        var lerpValue = Time.deltaTime * 3;
-        var lerpedAngle = Mathf.LerpAngle(0, targetRotationAngle, lerpValue);
-        transform.RotateAround(absoluteRotationPoint, rotationAxis, lerpedAngle);
-        rotationApplied += lerpValue;
-
-        if (rotationApplied >= 1)
-        {
-            FinishMovement();
-        }
-    }
-
     private void FinishMovement()
     {
-        diceLogic.SettleInPlace();
         CheckIfLaysOnGroundOrSticks();
         SetSideColliders();
-        moveDirection = Direction.None;
-        isMoving = false;
+        MoveRollingDice();
+    }
+
+    private void MoveRollingDice()
+    {
+        foreach (var die in rollingDice)
+        {
+            die.Roll();
+        }
     }
 
     private void CheckIfLaysOnGroundOrSticks()
