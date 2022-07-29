@@ -5,6 +5,7 @@ public class DiceLogic : MonoBehaviour
 {
     public bool isSticky = false;
     public bool isFinish = false;
+    public int rotationSpeed = 3;
 
     public int FrontDotValue { get; private set; }
     public int BackDotValue { get; private set; }
@@ -16,12 +17,12 @@ public class DiceLogic : MonoBehaviour
     public bool IsMoving { get; private set; } = false;
 
     private const float D = 0.5f;
-    private static readonly Vector3 sidePointLeft = new(-D, 0, 0);
-    private static readonly Vector3 sidePointRight = new(D, 0, 0);
-    private static readonly Vector3 sidePointFront = new(0, 0, D);
-    private static readonly Vector3 sidePointBack = new(0, 0, -D);
-    private static readonly Vector3 sidePointTop = new(0, D, 0);
-    private static readonly Vector3 sidePointBottom = new(0, -D, 0);
+    private Vector3 sidePointLeft = new(-D, 0, 0);
+    private Vector3 sidePointRight = new(D, 0, 0);
+    private Vector3 sidePointFront = new(0, 0, D);
+    private Vector3 sidePointBack = new(0, 0, -D);
+    private Vector3 sidePointTop = new(0, D, 0);
+    private Vector3 sidePointBottom = new(0, -D, 0);
 
     private Direction moveDirection;
     private Vector3 absoluteRotationPoint;
@@ -252,7 +253,7 @@ public class DiceLogic : MonoBehaviour
     private void Roll()
     {
         var targetRotationAngle = 90f * angleSign;
-        var lerpValue = Time.deltaTime * 3;
+        var lerpValue = Time.deltaTime * rotationSpeed;
         var lerpedAngle = Mathf.LerpAngle(0, targetRotationAngle, lerpValue);
         transform.RotateAround(absoluteRotationPoint, rotationAxis, lerpedAngle);
         rotationApplied += lerpValue;
@@ -264,5 +265,15 @@ public class DiceLogic : MonoBehaviour
             moveDirection = Direction.None;
             IsMoving = false;
         }
+    }
+
+    public void AllowOnlySelfRotation()
+    {
+        sidePointLeft = Vector3.zero;
+        sidePointRight = Vector3.zero;
+        sidePointFront = Vector3.zero;
+        sidePointBack = Vector3.zero;
+        sidePointTop = Vector3.zero;
+        sidePointBottom = Vector3.zero;
     }
 }
