@@ -16,7 +16,6 @@ public class RollingDie : MonoBehaviour
 
     public void Roll()
     {
-        // TODO rotate before player
-        diceLogic.MoveIntoDirection(rollDirection, () => { });
+        diceLogic.MoveIntoDirection(rollDirection);
     }
 }

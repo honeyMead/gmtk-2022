@@ -30,6 +30,7 @@ public class DiceLogic : MonoBehaviour
     private float angleSign;
     private float rotationApplied;
     private Action actionAfterMovement;
+    private Action actionBeforeMovement;
 
     private const int SumOfOpposingDotValues = 7;
 
@@ -172,13 +173,14 @@ public class DiceLogic : MonoBehaviour
                 break;
         }
     }
-    public void MoveIntoDirection(Direction direction, Action finishMovementAction)
+    public void MoveIntoDirection(Direction direction, Action startMovementAction = null, Action finishMovementAction = null)
     {
         if (direction == Direction.None)
         {
             return;
         }
         moveDirection = direction;
+        actionBeforeMovement = startMovementAction;
         actionAfterMovement = finishMovementAction;
 
         Vector3? ownSidePoint = null;
@@ -252,6 +254,10 @@ public class DiceLogic : MonoBehaviour
 
     private void Roll()
     {
+        if (rotationApplied == 0)
+        {
+            actionBeforeMovement?.Invoke();
+        }
         var targetRotationAngle = 90f * angleSign;
         var lerpValue = Time.deltaTime * rotationSpeed;
         var lerpedAngle = Mathf.LerpAngle(0, targetRotationAngle, lerpValue);
@@ -261,7 +267,7 @@ public class DiceLogic : MonoBehaviour
         if (rotationApplied >= 1)
         {
             SettleInPlace();
-            actionAfterMovement();
+            actionAfterMovement?.Invoke();
             moveDirection = Direction.None;
             IsMoving = false;
         }

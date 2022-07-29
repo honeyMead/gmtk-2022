@@ -50,7 +50,7 @@ public class PlayerControl : MonoBehaviour
         if (!diceLogic.IsMoving && !isSlowMo)
         {
             var direction = GetMoveDirectionFromKey();
-            diceLogic.MoveIntoDirection(direction, () => FinishMovement());
+            diceLogic.MoveIntoDirection(direction, () => MoveRollingDice(), () => FinishMovement());
         }
     }
 
@@ -182,7 +182,6 @@ public class PlayerControl : MonoBehaviour
     {
         CheckIfLaysOnGroundOrSticks();
         SetSideColliders();
-        MoveRollingDice();
     }
 
     private void MoveRollingDice()
