@@ -5,6 +5,7 @@ public class DiceLogic : MonoBehaviour
 {
     public bool isSticky = false;
     public bool isFinish = false;
+    public bool isRollingDie = false;
     public int rotationSpeed = 3;
 
     public int FrontDotValue { get; private set; }
@@ -15,6 +16,7 @@ public class DiceLogic : MonoBehaviour
     public int LeftDotValue { get; private set; }
 
     public bool IsMoving { get; private set; } = false;
+    private bool isMovingReverted = false;
 
     private const float D = 0.5f;
     private Vector3 sidePointLeft = new(-D, 0, 0);
@@ -258,18 +260,39 @@ public class DiceLogic : MonoBehaviour
         {
             actionBeforeMovement?.Invoke();
         }
+        ApplyMoveRotation();
+
+        if (rotationApplied >= 1)
+        {
+            FinishMovement();
+        }
+    }
+
+    private void ApplyMoveRotation()
+    {
         var targetRotationAngle = 90f * angleSign;
         var lerpValue = Time.deltaTime * rotationSpeed;
         var lerpedAngle = Mathf.LerpAngle(0, targetRotationAngle, lerpValue);
         transform.RotateAround(absoluteRotationPoint, rotationAxis, lerpedAngle);
         rotationApplied += lerpValue;
+    }
 
-        if (rotationApplied >= 1)
+    private void FinishMovement()
+    {
+        SettleInPlace();
+        actionAfterMovement?.Invoke();
+        moveDirection = Direction.None;
+        IsMoving = false;
+        isMovingReverted = false;
+    }
+
+    public void RevertMoveDirection()
+    {
+        if (!isMovingReverted)
         {
-            SettleInPlace();
-            actionAfterMovement?.Invoke();
-            moveDirection = Direction.None;
-            IsMoving = false;
+            angleSign = -angleSign;
+            isMovingReverted = true;
+            rotationApplied = 1 - rotationApplied;
         }
     }
 

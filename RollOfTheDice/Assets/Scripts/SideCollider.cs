@@ -24,27 +24,34 @@ public class SideCollider : MonoBehaviour
         {
             return;
         }
-        var die = GetEnvDieParent(other);
+        var die = GetEnvDieLogic(other);
         touchingDie = die;
 
         player.SideCollided(transform);
+        var otherCollider = other.GetComponent<EnvDieCollider>();
 
         if (die.isSticky)
         {
-            var stickyDie = other.GetComponent<EnvDieCollider>();
-            if (stickyDie.sideDotValue == dotValue)
+            if (otherCollider.sideDotValue == dotValue)
             {
-                player.stickyDice.Add(stickyDie);
+                player.stickyDice.Add(otherCollider);
                 IsSticking = true;
             }
         }
         if (die.isFinish)
         {
-            var finishDie = other.GetComponent<EnvDieCollider>();
-
-            if (finishDie.sideDotValue == dotValue)
+            if (otherCollider.sideDotValue == dotValue)
             {
                 gameController.WinScene();
+            }
+        }
+        if (die.isRollingDie)
+        {
+            var collidingSideDotValue = otherCollider.sideDotValue;
+
+            if (collidingSideDotValue != dotValue)
+            {
+                player.RevertMoveDirection();
             }
         }
     }
@@ -55,7 +62,7 @@ public class SideCollider : MonoBehaviour
         {
             return;
         }
-        var die = GetEnvDieParent(other);
+        var die = GetEnvDieLogic(other);
         if (die == touchingDie) // when falling, a side collider can touch two dice colliders in parallel
         {
             touchingDie = null;
@@ -69,7 +76,7 @@ public class SideCollider : MonoBehaviour
         }
     }
 
-    private static DiceLogic GetEnvDieParent(Collider other)
+    private static DiceLogic GetEnvDieLogic(Collider other)
     {
         return other.transform.parent.parent.GetComponent<DiceLogic>();
     }

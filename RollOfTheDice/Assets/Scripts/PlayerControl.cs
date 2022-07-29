@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -244,5 +243,10 @@ public class PlayerControl : MonoBehaviour
                 Debug.LogWarning($"Could not set side collider.");
             }
         }
+    }
+
+    public void RevertMoveDirection()
+    {
+        diceLogic.RevertMoveDirection();
     }
 }
