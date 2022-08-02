@@ -162,14 +162,13 @@ public class PlayerControl : MonoBehaviour
         return wantedDirection;
     }
 
-    public void SideCollided(Transform sideCollider) // TODO handle falling without unity physic engine
+    public void SideCollided(SideCollider side)
     {
         if (!OwnRigidbody.isKinematic)
         {
-            var side = sideCollider.GetComponent<SideCollider>();
             var isBottomCollider = side == bottomSide;
 
-            if (isBottomCollider)
+            if (isBottomCollider || side.IsSticking)
             {
                 OwnRigidbody.isKinematic = true;
                 diceLogic.SettleInPlace();

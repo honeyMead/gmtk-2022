@@ -27,7 +27,6 @@ public class SideCollider : MonoBehaviour
         var die = GetEnvDieLogic(other);
         touchingDie = die;
 
-        player.SideCollided(transform);
         var otherCollider = other.GetComponent<EnvDieCollider>();
 
         if (die.isSticky)
@@ -38,6 +37,9 @@ public class SideCollider : MonoBehaviour
                 IsSticking = true;
             }
         }
+
+        player.SideCollided(this);
+
         if (die.isFinish)
         {
             if (otherCollider.sideDotValue == dotValue)

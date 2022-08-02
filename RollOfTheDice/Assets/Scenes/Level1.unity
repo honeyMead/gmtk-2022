@@ -907,6 +907,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: UI
       objectReference: {fileID: 0}
+    - target: {fileID: 490381697297728977, guid: 2dc37cf15f81eb0498a10330ed45bf5c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 490381697297728978, guid: 2dc37cf15f81eb0498a10330ed45bf5c, type: 3}
       propertyPath: m_RootOrder
       value: 4
@@ -1336,18 +1340,6 @@ PrefabInstance:
     - target: {fileID: 9013207771685037269, guid: c10cd292bb221f644a21d0038af3e941, type: 3}
       propertyPath: m_Name
       value: Main Camera
-      objectReference: {fileID: 0}
-    - target: {fileID: 9013207771685037271, guid: c10cd292bb221f644a21d0038af3e941, type: 3}
-      propertyPath: m_BackGroundColor.b
-      value: 0.103773594
-      objectReference: {fileID: 0}
-    - target: {fileID: 9013207771685037271, guid: c10cd292bb221f644a21d0038af3e941, type: 3}
-      propertyPath: m_BackGroundColor.g
-      value: 0.103773594
-      objectReference: {fileID: 0}
-    - target: {fileID: 9013207771685037271, guid: c10cd292bb221f644a21d0038af3e941, type: 3}
-      propertyPath: m_BackGroundColor.r
-      value: 0.103773594
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c10cd292bb221f644a21d0038af3e941, type: 3}
