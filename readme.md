@@ -8,7 +8,7 @@ My game is called: **"Dice de los muertos"**. Play it on [itch.io](https://honey
 
 **Controls**  
 WASD or arrow keys to move.  
-Space or CTRL to mirror cam.  
+Space or CTRL to move the cam.  
 R to restart the current level.  
 Q or X to make the die transparent.  
 
