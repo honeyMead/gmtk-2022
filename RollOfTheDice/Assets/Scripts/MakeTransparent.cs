@@ -10,7 +10,7 @@ public class MakeTransparent : MonoBehaviour
     {
         dieMat = GetComponent<Renderer>().material;
         defaultColor = dieMat.color;
-        transparentColor = new Color(defaultColor.r, defaultColor.g, defaultColor.b, 0.1f);
+        transparentColor = new Color(defaultColor.r, defaultColor.g, defaultColor.b, 0.02f);
     }
 
     void Update()

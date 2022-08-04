@@ -53,6 +53,11 @@ public class GameController : MonoBehaviour
 
     private void LoadNextScene(int nextLevel)
     {
+        if (permanentMusic != null)
+        {
+            var music = permanentMusic.GetComponent<AudioSource>();
+            music.pitch = 1 - nextLevel / 100f;
+        }
         SceneManager.LoadScene(nextLevel);
         Time.timeScale = 1;
     }

@@ -10,10 +10,10 @@ public class LevitateSlowly : MonoBehaviour
     void Start()
     {
         startY = transform.position.y;
-        var distance = Random.Range(0.1f, 0.3f);
+        var distance = Random.Range(0.1f, 0.175f);
         endY = transform.position.y - distance;
         targetY = endY;
-        speed = Random.Range(distance / 6, distance / 4);
+        speed = distance / 8;
     }
 
     void FixedUpdate()
